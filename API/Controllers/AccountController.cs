@@ -13,7 +13,7 @@ namespace API.Controller;
 public class AccountController(AppDbContext context, ITokenService tokenService) : BaseApiController
 {
     [HttpPost("register")] // localhost:5001/api/account/register
-    public async Task<ActionResult<AppUser>> Register(RegisterDTO registerDTO)
+    public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
     {
         if (await EmailExists(registerDTO.Email))
             return BadRequest("Email is taken");
@@ -32,7 +32,8 @@ public class AccountController(AppDbContext context, ITokenService tokenService)
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return user;
+        // Return user with token and remove password
+        return user.ToDto(tokenService);
     }
 
     [HttpPost("login")]
